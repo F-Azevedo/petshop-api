@@ -1,0 +1,12 @@
+127.0.0.1:8000/                             -> Página inicial
+
+Postar informações gerais sobre pessoas e pets:
+127.0.0.1:8000/owner/                       -> Sem nenhum especifico, retorna todos os donos de pet
+127.0.0.1:8000/owner/{id_owner}             -> Retorna as informações de um dono específico
+127.0.0.1:8000/owner/{id_owner}/            -> Retorna as informações de todos os pets daquela pessoa
+127.0.0.1:8000/owner/{id_owner}/{pet_id}    -> Retorna as informações de um pet especifico de uma pessoa
+
+Postar estatisticas:
+127.0.0.1:8000/{pet_kind}/                  -> Retorna os pets daquele tipo
+127.0.0.1:8000/{pet_kind}/count             -> Retorna quantos pets daquele tipo existem cadastrados
+127.0.0.1:8000/{pet_kind}/owner             -> Retorna os nomes dos donos de cada pet daquele tipo
