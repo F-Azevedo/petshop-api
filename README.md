@@ -11,6 +11,4 @@ pip install uvicorn
 
 apt-get install mysql-server
 
-apt-get install mysql-workbench
-
 pip install mysql-connector-python
