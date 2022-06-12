@@ -8,6 +8,6 @@ Postar informações gerais sobre pessoas e pets:
 
 Postar estatisticas:
 127.0.0.1:8000/pets                         -> Retorna todos os pets
-127.0.0.1:8000/pets/{pet_kind}/             -> Retorna todos os pets daquela especie
-127.0.0.1:8000/pets/{pet_kind}/count        -> Retorna quantos pets daquele tipo existem cadastrados
-127.0.0.1:8000/pets/{pet_kind}/owner        -> Retorna os nomes dos donos de cada pet daquele tipo
+127.0.0.1:8000/pets/count                   -> Retorna quantos pets existem cadastrados de cada tipo
+127.0.0.1:8000/pets/{species}/              -> Retorna todos os pets daquela especie
+127.0.0.1:8000/pets/{species}/owners        -> Retorna os nomes dos donos de cada pet daquele tipo
