@@ -1,39 +1,21 @@
-from enum import Enum
-
-
-class Month(Enum):
-    janeiro = '1'
-    fevereiro = '2'
-    marco = '3'
-    abril = '4'
-    maio = '5'
-    junho = '6'
-    julho = '7'
-    agosto = '8'
-    setembro = '9'
-    outubro = '10'
-    novembro = '11'
-    dezembro = '12'
+import datetime
+import json
 
 
 class Person:
-    def __init__(self, name: str, document: int, date_of_birth: str):
+    def __init__(self, person_id: int, name: str, document: int, date_of_birth: str):
+        self.person_id = person_id
         self.name = name
         self.document = document
+        self.date_of_birth = date_of_birth
 
-        aux = date_of_birth.split()
-        print(aux)
-        aux = aux[::2]
-        for i in Month:
-            if aux[1] == i.name:
-                aux[1] = i.value
-                break
-        self.date_of_birth = "/".join(aux)
+    def toJSON(self):
+        return json.dumps(self, default=lambda o: dict(year=o.year, month=o.month, day=o.day) if isinstance(o, datetime.date) else o.__dict__)
 
     def __str__(self):
-        return f"name: {self.name}, document: {self.document}, date_of_birth: {self.date_of_birth}"
+        return f"person_id: {self.person_id}, name: {self.name}, document: {self.document}, date_of_birth: {self.date_of_birth} "
 
 
 if __name__ == "__main__":
-    person = Person("fernando", 11111111111, "01 de janeiro de 2000")
+    person = Person(1, "fernando", 11111111111, "2000-01-01")
     print(person)
