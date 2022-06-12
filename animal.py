@@ -1,35 +1,21 @@
-from enum import Enum
-
-
-class Kind(Enum):
-    bird = "bird"
-    cat = "cat"
-    dog = "dog"
-    frog = "frog"
-    hamster = "hamster"
-    horse = "horse"
-    pig = "pig"
-    snake = "snake"
+import json
 
 
 class Animal:
-    def __init__(self, name: str, cost: float, kind: str):
+    def __init__(self, animal_id: int, name: str, cost: float, species: str, owner_id: int):
+        self.animal_id = animal_id
         self.name = name
         self.cost = cost
-        aux = kind.lower()
-        for i in Kind:
-            if aux == i.value:
-                self.kind = aux
-                print('Atribution Sucefull')
-                break
-        else:
-            print("Atribution Failed")
-            raise ValueError
+        self.species = species
+        self.owner_id = owner_id
+
+    def toJSON(self):
+        return json.dumps(self, default=lambda o: o.__dict__)
 
     def __str__(self):
-        return f"name: {self.name}, cost: {self.cost}, kind: {self.kind}"
+        return f"name: {self.name}, cost: {self.cost}, species: {self.species}, owner: {self.owner_id}"
 
 
 if __name__ == '__main__':
-    pet = Animal("thor", 99.99, "dog")
+    pet = Animal(1, "thor", 99.99, "dog", 1)
     print(pet)
