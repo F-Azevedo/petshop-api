@@ -3,13 +3,16 @@ from mysql.connector import Error
 
 
 class Database:
-    def create_server_connection(self, host_name, user_name, user_password):
+    user_password = '123'
+    db_connection = ''
+
+    def create_server_connection(self, host_name, user_name):
         connection = None
         try:
             connection = mysql.connector.connect(
                 host=host_name,
                 user=user_name,
-                passwd=user_password
+                passwd=self.user_password
             )
             print("MySQL Database connection successfull")
         except Error as err:
@@ -25,35 +28,44 @@ class Database:
         except Error as err:
             print(f"Error: {err}")
 
-    def create_db_connection(self, host_name, user_name, user_password, db_name):
+    def create_db_connection(self, host_name, user_name, db_name):
         connection = None
         try:
             connection = mysql.connector.connect(
                 host=host_name,
                 user=user_name,
-                passwd=user_password,
+                passwd=self.user_password,
                 database=db_name
             )
             print("MySQL Database connection successfull")
         except Error as err:
             print(f"Error: {err}")
 
-        return connection
+        self.db_connection = connection
 
-    def execute_query(self, connection, query):
-        cursor = connection.cursor()
+    def execute_query(self, query):
+        cursor = self.db_connection.cursor()
         try:
             cursor.execute(query)
-            connection.commit()
+            self.db_connection.commit()
             print("Query successfull")
         except Error as err:
             print(f"Error: {err}")
 
+    def read_query(self, query):
+        cursor = self.db_connection.cursor()
+        result = None
+        try:
+            cursor.execute(query)
+            result = cursor.fetchall()
+            return result
+        except Error as err:
+            print(f"Error: '{err}'")
+
 
 if __name__ == "__main__":
-    pw = '123'
     db = Database()
-    db_connection = db.create_server_connection("localhost", "root", pw)
+    db_connection = db.create_server_connection("localhost", "root")
 
 # Criando base de dados
     create_db_query = """
@@ -62,9 +74,10 @@ if __name__ == "__main__":
     """
     db.create_database(db_connection, create_db_query)
 
-# Criando tabela
-    db_connection = db.create_db_connection("localhost", "root", pw, "PETLOVE")
+# Conectando a base de dados
+    db.create_db_connection("localhost", "root", "PETLOVE")
 
+# Criando as tabelas
     create_person_table = """
     CREATE TABLE person(
     person_id INT NOT NULL AUTO_INCREMENT,
@@ -92,9 +105,9 @@ if __name__ == "__main__":
     );
     """
 
-    db.execute_query(db_connection, create_person_table)
-    db.execute_query(db_connection, create_species_table)
-    db.execute_query(db_connection, create_animal_table)
+    db.execute_query(create_person_table)
+    db.execute_query(create_species_table)
+    db.execute_query(create_animal_table)
 
     print("\nTable creation successfull!\n")
 
@@ -107,7 +120,7 @@ if __name__ == "__main__":
     ON DELETE SET NULL
     """
 
-    db.execute_query(db_connection, alter_animal)
+    db.execute_query(alter_animal)
 
     alter_animal = """
     ALTER TABLE animal
@@ -116,7 +129,7 @@ if __name__ == "__main__":
     ON DELETE SET NULL
     """
 
-    db.execute_query(db_connection, alter_animal)
+    db.execute_query(alter_animal)
 
 # Populando base de dados
 
@@ -138,7 +151,7 @@ if __name__ == "__main__":
     ('snake');
     """
 
-    db.execute_query(db_connection, populate_species)
+    db.execute_query(populate_species)
 
     populate_person = """
     INSERT INTO person(name, document, dateOfBirth) VALUES
@@ -147,7 +160,7 @@ if __name__ == "__main__":
     ('Phineas Flynn Fletcher', 1111111113, '1990-07-19');
     """
 
-    db.execute_query(db_connection, populate_person)
+    db.execute_query(populate_person)
 
     populate_animal = """
     INSERT INTO animal(name, cost, species, owner_id) VALUES
@@ -161,4 +174,4 @@ if __name__ == "__main__":
     ('Ladylou', 199.99, 'snake', 1);
     """
 
-    db.execute_query(db_connection, populate_animal)
+    db.execute_query(populate_animal)
