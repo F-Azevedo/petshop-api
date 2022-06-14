@@ -1,9 +1,10 @@
+import json
+import base_model as bm
 from animal import Animal
 from database import Database
 from fastapi import FastAPI
 from json_config import PrettyJSONResponse
 from person import Person
-import json
 
 app = FastAPI()
 db = Database()
@@ -14,6 +15,8 @@ db_connection = db.create_db_connection("localhost", "root", "PETLOVE")
 def root():
     return {"message": "Hello World"}
 
+
+# GET methods
 
 @app.get("/owners", response_class=PrettyJSONResponse)
 def get_all_owners():
@@ -60,12 +63,12 @@ def get_all_pets_from_owner(owner_id: int):
     return {'result': result}
 
 
-@app.get("/owners/{owner_id}/pets/{animal_id}", response_class=PrettyJSONResponse)
-def get_one_pets_from_owner(owner_id: int, animal_id: int):
+@app.get("/owners/{owner_id}/pets/{pet_id}", response_class=PrettyJSONResponse)
+def get_pets_from_owner_by_pet_id(owner_id: int, pet_id: int):
     query = f"""
     SELECT animal.animal_id, animal.name, cost, species, person.person_id
     FROM person JOIN animal ON person.person_id=animal.owner_id
-    WHERE person.person_id={owner_id} AND animal_id={animal_id}"""
+    WHERE person.person_id={owner_id} AND animal.animal_id='{pet_id}'"""
     results_query = db.read_query(query)
 
     if results_query:
@@ -139,9 +142,9 @@ def get_all_pets_from_specie(species: str):
 
 
 @app.get("/pets/{species}/owners", response_class=PrettyJSONResponse)
-def get_all_pets_from_specie(species: str):
+def get_all_pet_owners_of_specie(species: str):
     query = f"""
-    SELECT person.person_id, person.name, person.document, person.dateOfBirth, animal.animal_id, animal.name, animal.cost, animal.species, animal.owner_id
+    SELECT person.person_id, person.name, person.document, person.dateOfBirth, animal.name, animal.cost, animal.species, animal.owner_id
     FROM animal JOIN person ON person.person_id=animal.owner_id
     WHERE species='{species}'
     """
@@ -150,7 +153,8 @@ def get_all_pets_from_specie(species: str):
     if results_query:
         result = []
         for i in results_query:
-            result.append({'owner': json.loads(Person(i[0], i[1], i[2], i[3]).toJSON()), 'pet': json.loads(Animal(i[4], i[5], i[6], i[7], i[8]).toJSON())})
+            result.append({'owner': json.loads(Person(i[0], i[1], i[2], i[3]).toJSON()),
+                           'pet': json.loads(Animal(i[4], i[5], i[6], i[7], i[8]).toJSON())})
     else:
         query = f"""SELECT * FROM species"""
         results_query = db.read_query(query)
@@ -165,3 +169,47 @@ def get_all_pets_from_specie(species: str):
             result = f"({species}) is not in the species list."
 
     return {'result': result}
+
+
+# POST methods
+
+@app.post("/new/person")
+def create_person(person: bm.Person):
+    query = f"""
+    INSERT INTO person(name, document, dateOfBirth) VALUES
+    ('{person.name}', {person.document} , '{person.date_of_birth}')
+    """
+
+    result_query = db.execute_query(query)
+    if result_query == "Query successfull":
+        return {'result': person}
+
+    return {'result': result_query}
+
+
+@app.post("/new/animal")
+def create_animal(animal: bm.Animal):
+    query = f"""
+    INSERT INTO animal(name, cost, species, owner_id) VALUES
+    ('{animal.name}', {animal.cost}, '{animal.species}', {animal.owner_id})
+    """
+
+    result_query = db.execute_query(query)
+    if result_query == "Query successfull":
+        return {'result': animal}
+
+    return {'result': result_query}
+
+
+@app.post("/new/species")
+def create_species(species: bm.Species):
+    query = f"""
+    INSERT INTO species VALUES
+    ('{species.name}')
+    """
+
+    result_query = db.execute_query(query)
+    if result_query == "Query successfull":
+        return {'result': species}
+
+    return {'result': result_query}
