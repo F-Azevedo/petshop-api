@@ -48,9 +48,9 @@ class Database:
         try:
             cursor.execute(query)
             self.db_connection.commit()
-            print("Query successfull")
+            return "Query successfull"
         except Error as err:
-            print(f"Error: {err}")
+            return f"Error: {err}"
 
     def read_query(self, query):
         cursor = self.db_connection.cursor()
@@ -67,17 +67,17 @@ if __name__ == "__main__":
     db = Database()
     db_connection = db.create_server_connection("localhost", "root")
 
-# Criando base de dados
+    # Criando base de dados
     create_db_query = """
     DROP DATABASE IF EXISTS PETLOVE;
     CREATE DATABASE PETLOVE;
     """
     db.create_database(db_connection, create_db_query)
 
-# Conectando a base de dados
+    # Conectando a base de dados
     db.create_db_connection("localhost", "root", "PETLOVE")
 
-# Criando as tabelas
+    # Criando as tabelas
     create_person_table = """
     CREATE TABLE person(
     person_id INT NOT NULL AUTO_INCREMENT,
@@ -92,9 +92,10 @@ if __name__ == "__main__":
     animal_id INT NOT NULL AUTO_INCREMENT,
     name VARCHAR(50) NOT NULL,
     cost FLOAT NOT NULL,
-    species VARCHAR(20),
-    owner_id INT,
-    PRIMARY KEY (animal_id)
+    species VARCHAR(50) NOT NULL,
+    owner_id INT NOT NULL,
+    PRIMARY KEY (animal_id),
+    CONSTRAINT UC_Animal UNIQUE (name, species, owner_id)
     );
     """
 
@@ -105,33 +106,53 @@ if __name__ == "__main__":
     );
     """
 
-    db.execute_query(create_person_table)
-    db.execute_query(create_species_table)
-    db.execute_query(create_animal_table)
+    if db.execute_query(create_person_table) != "Query successfull":
+        print("Erro in create_person_table")
+        exit()
+    elif db.execute_query(create_species_table) != "Query successfull":
+        print("Erro in create_species_table")
+        exit()
+    elif db.execute_query(create_animal_table) != "Query successfull":
+        print(db.execute_query(create_animal_table))
+        print("Erro in create_animal_table")
+        exit()
 
-    print("\nTable creation successfull!\n")
+    print("Table creation successfull!")
 
-# Definindo as chaves extrangeiras
+    # Definindo as chaves extrangeiras
 
     alter_animal = """
     ALTER TABLE animal
     ADD FOREIGN KEY(owner_id)
     REFERENCES person(person_id)
-    ON DELETE SET NULL
+    ON DELETE CASCADE
     """
 
-    db.execute_query(alter_animal)
+    if db.execute_query(alter_animal) != "Query successfull":
+        print("Erro adding OWNER_ID foreing key in animal table")
+        exit()
 
     alter_animal = """
     ALTER TABLE animal
     ADD FOREIGN KEY(species)
     REFERENCES species(name)
-    ON DELETE SET NULL
+    ON DELETE CASCADE
     """
 
-    db.execute_query(alter_animal)
+    if db.execute_query(alter_animal) != "Query successfull":
+        print("Erro adding SPECIES foreing key in animal table")
+        exit()
 
-# Populando base de dados
+    print("Foreign Keys creation successfull")
+
+    # Populando base de dados
+
+    populate_person = """
+    INSERT INTO person(name, document, dateOfBirth) VALUES
+    ('Fernando Azevedo', 1, '2000-01-01'),
+    ('Danilo Erler', 2, '2001-03-03'),
+    ('Phineas Flynn Fletcher', 3, '1990-07-19');
+    """
 
     populate_species = """
     INSERT INTO species VALUES
@@ -151,17 +172,6 @@ if __name__ == "__main__":
     ('snake');
     """
 
-    db.execute_query(populate_species)
-
-    populate_person = """
-    INSERT INTO person(name, document, dateOfBirth) VALUES
-    ('Fernando Azevedo', 1111111111 , '2000-01-01'),
-    ('Danilo Erler', 1111111112 , '2001-03-03'),
-    ('Phineas Flynn Fletcher', 1111111113, '1990-07-19');
-    """
-
-    db.execute_query(populate_person)
-
     populate_animal = """
     INSERT INTO animal(name, cost, species, owner_id) VALUES
     ('Perry', 199.99, 'platypus', 3),
@@ -174,4 +184,14 @@ if __name__ == "__main__":
     ('Ladylou', 199.99, 'snake', 1);
     """
 
-    db.execute_query(populate_animal)
+    if db.execute_query(populate_person) != "Query successfull":
+        print("Erro in populate_person")
+        exit()
+    elif db.execute_query(populate_species) != "Query successfull":
+        print("Erro in populate_species")
+        exit()
+    elif db.execute_query(populate_animal) != "Query successfull":
+        print("Erro in populate_animal")
+        exit()
+
+    print("Populating database successfull")
