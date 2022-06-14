@@ -1,27 +1,27 @@
-127.0.0.1:8000/                             -> Página inicial
+127.0.0.1:8000/                                     -> Página inicial
 
 Postar informações gerais sobre pessoas e pets:
-127.0.0.1:8000/owners/                          -> Sem nenhum especifico, retorna todos os donos de pet
-127.0.0.1:8000/owners/{owner_id}                -> Retorna as informações de um dono específico
-127.0.0.1:8000/owners/{owner_id}/pets           -> Retorna as informações de todos os pets daquela pessoa
-127.0.0.1:8000/owners/{owner_id}/pets/{pet_id}  -> Retorna as informações de um pet especifico de uma pessoa
+127.0.0.1:8000/owners/                              -> Sem nenhum especifico, retorna todos os donos de pet
+127.0.0.1:8000/owners/{owner_id}                    -> Retorna as informações de um dono específico
+127.0.0.1:8000/owners/{owner_id}/pets               -> Retorna as informações de todos os pets daquela pessoa
+127.0.0.1:8000/owners/{owner_id}/pets/{pet_id}      -> Retorna as informações de um pet especifico de uma pessoa
 
 Postar estatisticas:
-127.0.0.1:8000/pets                         -> Retorna todos os pets
-127.0.0.1:8000/pets/count                   -> Retorna quantos pets existem cadastrados de cada tipo
-127.0.0.1:8000/pets/{species}/              -> Retorna todos os pets daquela especie
-127.0.0.1:8000/pets/{species}/owners        -> Retorna os nomes dos donos de cada pet daquele tipo
+127.0.0.1:8000/pets                                 -> Retorna todos os pets
+127.0.0.1:8000/pets/count                           -> Retorna quantos pets existem cadastrados de cada tipo
+127.0.0.1:8000/pets/{species}/                      -> Retorna todos os pets daquela especie
+127.0.0.1:8000/pets/{species}/owners                -> Retorna os nomes dos donos de cada pet daquele tipo
 
 Métodos para inserir
-127.0.0.1:8000/new/person                   -> Insere uma nova pessoa
-127.0.0.1:8000/new/animal                   -> Insere um novo animal
-127.0.0.1:8000/new/species                  -> Insere uma nova especie
+127.0.0.1:8000/new/person                           -> Insere uma nova pessoa
+127.0.0.1:8000/new/animal                           -> Insere um novo animal
+127.0.0.1:8000/new/species                          -> Insere uma nova especie
 
 Métodos para deletar
-127.0.0.1:8000/delete/person/{person_id}        -> Deleta uma pessoa
-127.0.0.1:8000/delete/animal/{pet_id}           -> Deleta um animal
-127.0.0.1:8000/delete/species/{species_name}    -> Deleta uma especie
+127.0.0.1:8000/delete/person/{person_id}            -> Deleta uma pessoa
+127.0.0.1:8000/delete/animal/{pet_id}               -> Deleta um animal
+127.0.0.1:8000/delete/species/{species_name}        -> Deleta uma especie
 
 Métodos para alterar
-127.0.0.1:8000/update/person/{person_id}        -> Altera uma pessoa
-127.0.0.1:8000/update/animal/{pet_id}           -> Altera um animal
+127.0.0.1:8000/update/person/{person_id}/           -> Altera uma pessoa
+127.0.0.1:8000/update/animal/{pet_id}               -> Altera um animal

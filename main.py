@@ -177,7 +177,7 @@ def get_all_pet_owners_of_specie(species: str):
 def create_person(person: bm.Person):
     query = f"""
     INSERT INTO person(name, document, dateOfBirth) VALUES
-    ('{person.name}', {person.document} , '{person.date_of_birth}')
+    ('{person.name}', {person.document} , '{person.dateOfBirth}')
     """
 
     result_query = db.execute_query(query)
@@ -249,6 +249,50 @@ def delete_species(name: str):
     DELETE
     FROM species
     WHERE name='{name}'
+    """
+
+    result_query = db.execute_query(query)
+
+    return {'result': result_query}
+
+
+# UPDATE methods
+
+@app.put("/update/person/{person_id}/")
+def update_person(person_id: int, person: bm.OptionalPerson):
+    var = "SET"
+    for key, value in person:
+        if value:
+            if var == 'SET':
+                var += f' {key} = "{value}"'
+            else:
+                var += f', {key} = "{value}"'
+
+    query = f"""
+    UPDATE person
+    {var}
+    WHERE person_id={person_id}
+    """
+
+    result_query = db.execute_query(query)
+
+    return {'result': result_query}
+
+
+@app.put("/update/animal/{pet_id}")
+def update_animal(pet_id: int, animal: bm.OptionalAnimal):
+    var = "SET"
+    for key, value in animal:
+        if value:
+            if var == 'SET':
+                var += f' {key} = "{value}"'
+            else:
+                var += f', {key} = "{value}"'
+
+    query = f"""
+    UPDATE animal
+    {var}
+    WHERE animal_id={pet_id}
     """
 
     result_query = db.execute_query(query)
