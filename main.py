@@ -213,3 +213,44 @@ def create_species(species: bm.Species):
         return {'result': species}
 
     return {'result': result_query}
+
+
+# DELETE methods
+
+@app.delete("/delete/person/{person_id}")
+def delete_person(person_id: int):
+    query = f"""
+    DELETE
+    FROM person
+    WHERE person_id={person_id}
+    """
+
+    result_query = db.execute_query(query)
+
+    return {'result': result_query}
+
+
+@app.delete("/delete/animal/{pet_id}")
+def delete_animal(pet_id: int):
+    query = f"""
+    DELETE
+    FROM animal
+    WHERE animal_id={pet_id}
+    """
+
+    result_query = db.execute_query(query)
+
+    return {'result': result_query}
+
+
+@app.delete("/delete/species/{name}")
+def delete_species(name: str):
+    query = f"""
+    DELETE
+    FROM species
+    WHERE name='{name}'
+    """
+
+    result_query = db.execute_query(query)
+
+    return {'result': result_query}
