@@ -1,3 +1,5 @@
+# Feito
+
 127.0.0.1:8000/                                     -> Página inicial
 
 Postar informações gerais sobre pessoas e pets:
@@ -25,3 +27,9 @@ Métodos para deletar
 Métodos para alterar
 127.0.0.1:8000/update/person/{person_id}/           -> Altera uma pessoa
 127.0.0.1:8000/update/animal/{pet_id}               -> Altera um animal
+
+# Para fazer
+
+Verificar possibilidade de atualizar o status code dos métodos.
+Fazer uma validação mais ampla nos métodos PUT.
+Criar testes automatizados, verificar TAVERN.
