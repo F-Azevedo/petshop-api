@@ -18,7 +18,7 @@ def connect():
 @app.get("/", response_class=PrettyJSONResponse)
 def root():
     connect()
-    return {"message": "Hello World"}
+    return {"message": "Check the README files for instructions on how to proceed."}
 
 
 # GET methods
@@ -39,8 +39,8 @@ def get_all_owners():
     return {'result': result}
 
 
-@app.get("/owners/{owner_id}", response_class=PrettyJSONResponse)
-def get_one_owner(owner_id: int):
+@app.get("/owners/{owner_id}", response_class=PrettyJSONResponse, status_code=200)
+def get_one_owner(owner_id: int, response: Response):
     connect()
     query = f'SELECT * FROM person WHERE person_id={owner_id}'
     result_query = db.read_query(query)
@@ -48,12 +48,13 @@ def get_one_owner(owner_id: int):
         owner = result_query[0]
         result = json.loads(Person(owner[0], owner[1], owner[2], owner[3]).toJSON())
     else:
-        result = "There is no such owner."
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        result = f"There is no person with id: '{owner_id}'."
     return {'result': result}
 
 
-@app.get("/owners/{owner_id}/pets", response_class=PrettyJSONResponse)
-def get_all_pets_from_owner(owner_id: int):
+@app.get("/owners/{owner_id}/pets", response_class=PrettyJSONResponse, status_code=200)
+def get_all_pets_from_owner(owner_id: int, response: Response):
     connect()
     query = f"""
     SELECT animal.animal_id, animal.name, cost, species, person.person_id
@@ -66,14 +67,25 @@ def get_all_pets_from_owner(owner_id: int):
         for i in results_query:
             result.append(json.loads(Animal(i[0], i[1], i[2], i[3], i[4]).toJSON()))
     else:
-        result = "There is no such owner."
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        result = f"There is no person with id: '{owner_id}'."
 
     return {'result': result}
 
 
-@app.get("/owners/{owner_id}/pets/{pet_id}", response_class=PrettyJSONResponse)
-def get_pets_from_owner_by_pet_id(owner_id: int, pet_id: int):
+@app.get("/owners/{owner_id}/pets/{pet_id}", response_class=PrettyJSONResponse, status_code=200)
+def get_pets_from_owner_by_pet_id(owner_id: int, pet_id: int, response: Response):
     connect()
+
+    # Validating if the user exists
+    query = f"""
+    SELECT * FROM person WHERE person_id={owner_id}
+    """
+    result_query = db.read_query(query)
+    if not result_query:
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return {'result': f"There is no person with id: '{owner_id}'."}
+
     query = f"""
     SELECT animal.animal_id, animal.name, cost, species, person.person_id
     FROM person JOIN animal ON person.person_id=animal.owner_id
@@ -85,7 +97,8 @@ def get_pets_from_owner_by_pet_id(owner_id: int, pet_id: int):
         for i in results_query:
             result.append(json.loads(Animal(i[0], i[1], i[2], i[3], i[4]).toJSON()))
     else:
-        result = "There is no such pet."
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        result = f"Person with id: '{owner_id}' doesn't own a pet with id: '{pet_id}'"
 
     return {'result': result}
 
@@ -127,8 +140,8 @@ def get_count_pets_by_species():
     return {'result': result}
 
 
-@app.get("/pets/{species}", response_class=PrettyJSONResponse)
-def get_all_pets_from_specie(species: str):
+@app.get("/pets/{species}", response_class=PrettyJSONResponse, status_code=200)
+def get_all_pets_from_specie(species: str, response: Response):
     connect()
     query = f"""SELECT * FROM animal WHERE species='{species}'"""
     results_query = db.read_query(query)
@@ -138,6 +151,7 @@ def get_all_pets_from_specie(species: str):
         for i in results_query:
             result.append(json.loads(Animal(i[0], i[1], i[2], i[3], i[4]).toJSON()))
     else:
+        # Validating if the specie exists
         query = f"""SELECT * FROM species"""
         results_query = db.read_query(query)
         available_species = []
@@ -148,13 +162,14 @@ def get_all_pets_from_specie(species: str):
         if species in available_species:
             result = f"There are no pets of this species: ({species})"
         else:
+            response.status_code = status.HTTP_400_BAD_REQUEST
             result = f"({species}) is not in the species list."
 
     return {'result': result}
 
 
-@app.get("/pets/{species}/owners", response_class=PrettyJSONResponse)
-def get_all_pet_owners_of_specie(species: str):
+@app.get("/pets/{species}/owners", response_class=PrettyJSONResponse, status_code=200)
+def get_all_pet_owners_of_specie(species: str, response: Response):
     connect()
     query = f"""
     SELECT person.person_id, person.name, person.document, person.dateOfBirth, animal.animal_id, animal.name, animal.cost, animal.species, animal.owner_id
@@ -169,6 +184,7 @@ def get_all_pet_owners_of_specie(species: str):
             result.append({'owner': json.loads(Person(i[0], i[1], i[2], i[3]).toJSON()),
                            'pet': json.loads(Animal(i[4], i[5], i[6], i[7], i[8]).toJSON())})
     else:
+        # Validating if the specie exists
         query = f"""SELECT * FROM species"""
         results_query = db.read_query(query)
         available_species = []
@@ -179,6 +195,7 @@ def get_all_pet_owners_of_specie(species: str):
         if species in available_species:
             result = f"There are no pets of this species: ({species})"
         else:
+            response.status_code = status.HTTP_400_BAD_REQUEST
             result = f"({species}) is not in the species list."
 
     return {'result': result}
