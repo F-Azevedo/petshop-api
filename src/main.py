@@ -1,6 +1,6 @@
 import re
 import json
-from fastapi import FastAPI
+from fastapi import FastAPI, Response, status
 from classes.animal import Animal
 from classes.person import Person
 from classes import base_model as bm
@@ -239,46 +239,67 @@ def create_species(species: bm.Species):
 
 # DELETE methods
 
-@app.delete("/delete/person/{person_id}")
-def delete_person(person_id: int):
+@app.delete("/delete/person/{person_id}", status_code=200)
+def delete_person(person_id: int, response: Response):
     connect()
+
+    # Validating if the user exists
     query = f"""
-    DELETE
-    FROM person
-    WHERE person_id={person_id}
+    SELECT * FROM person WHERE person_id={person_id}
     """
+    result_query = db.read_query(query)
+    if not result_query:
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return {'result': f"There is no person with id: '{person_id}' to delete."}
 
-    result_query = db.execute_query(query)
+    # If the user exists, proceed to delete
+    query = f"""
+    DELETE FROM person WHERE person_id={person_id}
+    """
+    db.execute_query(query)
+    return {'result': f"Person with id: '{person_id}' deleted successfully."}
 
-    return {'result': result_query}
 
-
-@app.delete("/delete/animal/{pet_id}")
-def delete_animal(pet_id: int):
+@app.delete("/delete/animal/{pet_id}", status_code=200)
+def delete_animal(pet_id: int, response: Response):
     connect()
+
+    # Validating if the pet exists
     query = f"""
-    DELETE
-    FROM animal
-    WHERE animal_id={pet_id}
+    SELECT * FROM animal WHERE animal_id={pet_id}
     """
+    result_query = db.read_query(query)
+    if not result_query:
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return {'result': f"There is no pet with id: '{pet_id}' to delete."}
 
-    result_query = db.execute_query(query)
+    # If the pet exists, proceed to delete
+    query = f"""
+    DELETE FROM animal WHERE animal_id={pet_id}
+    """
+    db.execute_query(query)
+    return {'result': f"Pet with id: '{pet_id}' deleted successfully."}
 
-    return {'result': result_query}
 
-
-@app.delete("/delete/species/{name}")
-def delete_species(name: str):
+@app.delete("/delete/species/{name}", status_code=200)
+def delete_species(name: str, response: Response):
     connect()
+
+    # Validating if the pet exists
     query = f"""
-    DELETE
-    FROM species
-    WHERE name='{name}'
+    SELECT * FROM species WHERE name='{name}'
     """
+    result_query = db.read_query(query)
+    if not result_query:
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return {'result': f"There is no species with name: '{name}' to delete."}
 
-    result_query = db.execute_query(query)
-
-    return {'result': result_query}
+    # If the specie exists, proceed to delete
+    query = f"""
+    DELETE FROM species WHERE name='{name}'
+    """
+    db.execute_query(query)
+    return {'result': f"Specie with name: '{name}' deleted successfully."}
 
 
 # UPDATE methods
