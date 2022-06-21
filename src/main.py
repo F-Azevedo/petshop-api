@@ -1,18 +1,23 @@
+import re
 import json
-import base_model as bm
-from animal import Animal
-from database import Database
 from fastapi import FastAPI
-from json_config import PrettyJSONResponse
-from person import Person
+from classes.animal import Animal
+from classes.person import Person
+from classes import base_model as bm
+from database.database import Database
+from config.json_config import PrettyJSONResponse
 
 app = FastAPI()
 db = Database()
-db_connection = db.create_db_connection("localhost", "root", "PETLOVE")
+
+
+def connect():
+    db.create_db_connection("db", "root", "PETLOVE")
 
 
 @app.get("/", response_class=PrettyJSONResponse)
 def root():
+    connect()
     return {"message": "Hello World"}
 
 
@@ -20,6 +25,7 @@ def root():
 
 @app.get("/owners", response_class=PrettyJSONResponse)
 def get_all_owners():
+    connect()
     query = 'SELECT * FROM person'
     results_query = db.read_query(query)
 
@@ -35,6 +41,7 @@ def get_all_owners():
 
 @app.get("/owners/{owner_id}", response_class=PrettyJSONResponse)
 def get_one_owner(owner_id: int):
+    connect()
     query = f'SELECT * FROM person WHERE person_id={owner_id}'
     result_query = db.read_query(query)
     if result_query:
@@ -47,6 +54,7 @@ def get_one_owner(owner_id: int):
 
 @app.get("/owners/{owner_id}/pets", response_class=PrettyJSONResponse)
 def get_all_pets_from_owner(owner_id: int):
+    connect()
     query = f"""
     SELECT animal.animal_id, animal.name, cost, species, person.person_id
     FROM person JOIN animal ON person.person_id=animal.owner_id
@@ -65,6 +73,7 @@ def get_all_pets_from_owner(owner_id: int):
 
 @app.get("/owners/{owner_id}/pets/{pet_id}", response_class=PrettyJSONResponse)
 def get_pets_from_owner_by_pet_id(owner_id: int, pet_id: int):
+    connect()
     query = f"""
     SELECT animal.animal_id, animal.name, cost, species, person.person_id
     FROM person JOIN animal ON person.person_id=animal.owner_id
@@ -83,6 +92,7 @@ def get_pets_from_owner_by_pet_id(owner_id: int, pet_id: int):
 
 @app.get("/pets", response_class=PrettyJSONResponse)
 def get_all_pets():
+    connect()
     query = 'SELECT * FROM animal'
     results_query = db.read_query(query)
 
@@ -98,6 +108,7 @@ def get_all_pets():
 
 @app.get("/pets/count", response_class=PrettyJSONResponse)
 def get_count_pets_by_species():
+    connect()
     query = """
     SELECT species.name, count(animal.species)
     FROM species LEFT JOIN animal ON species.name=animal.species
@@ -118,6 +129,7 @@ def get_count_pets_by_species():
 
 @app.get("/pets/{species}", response_class=PrettyJSONResponse)
 def get_all_pets_from_specie(species: str):
+    connect()
     query = f"""SELECT * FROM animal WHERE species='{species}'"""
     results_query = db.read_query(query)
 
@@ -143,8 +155,9 @@ def get_all_pets_from_specie(species: str):
 
 @app.get("/pets/{species}/owners", response_class=PrettyJSONResponse)
 def get_all_pet_owners_of_specie(species: str):
+    connect()
     query = f"""
-    SELECT person.person_id, person.name, person.document, person.dateOfBirth, animal.name, animal.cost, animal.species, animal.owner_id
+    SELECT person.person_id, person.name, person.document, person.dateOfBirth, animal.animal_id, animal.name, animal.cost, animal.species, animal.owner_id
     FROM animal JOIN person ON person.person_id=animal.owner_id
     WHERE species='{species}'
     """
@@ -175,6 +188,13 @@ def get_all_pet_owners_of_specie(species: str):
 
 @app.post("/new/person")
 def create_person(person: bm.Person):
+    connect()
+    # Validação para ver se a data esta em um formato válido, 1970-01-01 é uma data cursed.
+    # Quando a api não recebe uma data correta no formato XXXX-XX-XX, ela a substitui por 1970-01-01.
+    date_validation = re.search("\d{4}-\d{2}-\d{2}", str(person.dateOfBirth))
+    if date_validation.string == '1970-01-01':
+        return {'result': 'Invalid Date'}
+
     query = f"""
     INSERT INTO person(name, document, dateOfBirth) VALUES
     ('{person.name}', {person.document} , '{person.dateOfBirth}')
@@ -189,6 +209,7 @@ def create_person(person: bm.Person):
 
 @app.post("/new/animal")
 def create_animal(animal: bm.Animal):
+    connect()
     query = f"""
     INSERT INTO animal(name, cost, species, owner_id) VALUES
     ('{animal.name}', {animal.cost}, '{animal.species}', {animal.owner_id})
@@ -203,6 +224,7 @@ def create_animal(animal: bm.Animal):
 
 @app.post("/new/species")
 def create_species(species: bm.Species):
+    connect()
     query = f"""
     INSERT INTO species VALUES
     ('{species.name}')
@@ -219,6 +241,7 @@ def create_species(species: bm.Species):
 
 @app.delete("/delete/person/{person_id}")
 def delete_person(person_id: int):
+    connect()
     query = f"""
     DELETE
     FROM person
@@ -232,6 +255,7 @@ def delete_person(person_id: int):
 
 @app.delete("/delete/animal/{pet_id}")
 def delete_animal(pet_id: int):
+    connect()
     query = f"""
     DELETE
     FROM animal
@@ -245,6 +269,7 @@ def delete_animal(pet_id: int):
 
 @app.delete("/delete/species/{name}")
 def delete_species(name: str):
+    connect()
     query = f"""
     DELETE
     FROM species
@@ -260,6 +285,15 @@ def delete_species(name: str):
 
 @app.put("/update/person/{person_id}/")
 def update_person(person_id: int, person: bm.OptionalPerson):
+    connect()
+    # Validação para ver se a data esta em um formato válido, 1970-01-01 é uma data cursed.
+    # Quando a api não recebe uma data correta no formato XXXX-XX-XX, ela a substitui por 1970-01-01.
+    # Verifica se não é None, pois é atributo opcional.
+    if person.dateOfBirth is not None:
+        date_validation = re.search("\d{4}-\d{2}-\d{2}", str(person.dateOfBirth))
+        if date_validation.string == '1970-01-01':
+            return {'result': 'Invalid Date'}
+
     var = "SET"
     for key, value in person:
         if value:
@@ -281,6 +315,7 @@ def update_person(person_id: int, person: bm.OptionalPerson):
 
 @app.put("/update/animal/{pet_id}")
 def update_animal(pet_id: int, animal: bm.OptionalAnimal):
+    connect()
     var = "SET"
     for key, value in animal:
         if value:
