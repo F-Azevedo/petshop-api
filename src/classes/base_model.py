@@ -1,3 +1,4 @@
+import datetime
 from pydantic import BaseModel
 from typing import Union
 
@@ -5,13 +6,13 @@ from typing import Union
 class Person(BaseModel):
     name: str
     document: int
-    dateOfBirth: str
+    dateOfBirth: datetime.date
 
 
 class OptionalPerson(BaseModel):
     name: Union[str, None] = None
     document: Union[int, None] = None
-    dateOfBirth: Union[str, None] = None
+    dateOfBirth: Union[datetime.date, None] = None
 
 
 class Animal(BaseModel):
