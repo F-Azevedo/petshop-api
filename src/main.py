@@ -72,7 +72,9 @@ def validate_date(person, response):
 @app.get("/", response_class=PrettyJSONResponse)
 def root():
     connect()
-    return {"message": "Check the README files for instructions on how to proceed"}
+    return {"methods": "You can run the GET methods directly using the url, you can run the other methods in the 'docs' tab, or using curl directly",
+            "docs": "If you want to see the documentation about the methods and the schema of the tables access 'localhost:8000/docs'.",
+            "adminer": "The application is also enables adminer to access the database directly, its running in 'localhost:8080', user:root, password:password"}
 
 
 # GET methods
