@@ -83,4 +83,4 @@ There is a bash script in the src folder that will run the tests using the follo
 ```bash
 docker exec api /usr/src/server/RunTests.sh
 ```
-The command above can be used anywhere inside the T1-B1 folder.
+The command above can be used anywhere inside the T1-BD folder.
