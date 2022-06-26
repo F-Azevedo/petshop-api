@@ -19,9 +19,20 @@ while the application is running.
 
 ## Summary
 
-1. [Prerequisites](#prerequisites)
-2. [QuickStart](#quickstart)
-3. [Automated Tests](#automated-tests)
+1. [The project](#project)
+2. [Prerequisites](#prerequisites)
+3. [QuickStart](#quickstart)
+4. [Automated Tests](#automated-tests)
+
+---
+
+## The project <a name="abstract"></a>
+
+This project creates an api for a database server of a petshop called Petlove. Both api and database
+server were containerized with docker client. The database server were modeled based on the follow 
+entity-relationship diagram:
+![Diagram ER - PETLOVE](images/DiagramER_PETLOVE.png)
+
 
 ---
 
