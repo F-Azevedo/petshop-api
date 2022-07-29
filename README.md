@@ -52,13 +52,13 @@ If that's not the case follow the steps in this [Docker installation tutorial](h
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/ivarejao/T1-BD.git
+git clone git@github.com:F-Azevedo/Petshop-api.git
 ```
 
 2. Enter the folder:
 
 ```bash
-cd T1-BD
+cd Petshop-api
 ```
 
 3. Create and run the Docker Containers (if the containers already exists, it just start the container):
@@ -97,4 +97,4 @@ There is a bash script in the src folder that will run the tests using the follo
 ```bash
 docker exec api /usr/src/server/RunTests.sh
 ```
-The command above can be used anywhere inside the T1-BD folder.
+The command above can be used anywhere inside the Petshop-api folder.
